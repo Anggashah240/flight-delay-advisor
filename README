@@ -1,3 +1,25 @@
+![Python](https://img.shields.io/badge/Python-3.14-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![LightGBM](https://img.shields.io/badge/LightGBM-ML_Model-FF6F00?style=for-the-badge)
+![LangChain](https://img.shields.io/badge/LangChain-RAG_Pipeline-1C3C3C?style=for-the-badge)
+![FAISS](https://img.shields.io/badge/FAISS-Vector_Store-0467DF?style=for-the-badge)
+
+---
+
+## Arsitektur Sistem
+
+```text
+[ Input Data ] 
+        │
+        ├──► (1) LightGBM Model ──► Prediksi Probabilitas Delay (%)
+        │
+        └──► (2) FAISS + RAG    ──► Retrieval Hak Penumpang (EU 261)
+                                         │
+                                         ▼
+                             [ Integrated Advisor Report ]
+
+
+
+
 # Flight Delay & EU 261 Advisor
 
 Sistem terintegrasi yang memprediksi risiko keterlambatan penerbangan menggunakan **Machine Learning (LightGBM)** dan memberikan advice hak kompensasi penumpang berbasis regulasi **EU 261/2004** menggunakan **RAG (LangChain + FAISS)**.
