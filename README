@@ -1,0 +1,18 @@
+# Flight Delay & EU 261 Advisor
+
+Sistem terintegrasi yang memprediksi risiko keterlambatan penerbangan menggunakan **Machine Learning (LightGBM)** dan memberikan advice hak kompensasi penumpang berbasis regulasi **EU 261/2004** menggunakan **RAG (LangChain + FAISS)**.
+
+## Struktur Proyek
+- `data/documents/`: Dokumen regulasi EU 261/2004 (`.md`).
+- `data/raw/`: Dataset penerbangan mentah.
+- `models/`: Model Machine Learning (`lgb_model.joblib`) dan indeks FAISS Vector Store.
+- `notebooks/`: 
+  - `01_eda_ml.ipynb`: Preprocessing data & pelatihan model LightGBM.
+  - `02_rag_pipeline.ipynb`: Pembuatan RAG pipeline & pengujian fungsi Advisor end-to-end.
+
+## Cara Menjalankan
+
+1. **Clone / Download repository ini**
+2. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
