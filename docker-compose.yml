@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  flight-advisor-app:
+    build: .
+    container_name: flight_delay_advisor
+    volumes:
+      - .:/app
+    environment:
+      - PYTHONUNBUFFERED=1
