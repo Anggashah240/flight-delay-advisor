@@ -1,33 +1,141 @@
+# Flight Delay Risk Predictor & EU 261 Legal Advisor
+
+[![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
+[![Framework](https://img.shields.io/badge/Streamlit-1.28%2B-red.svg)](https://streamlit.io/)
+[![Machine Learning](https://img.shields.io/badge/LightGBM-Classifier-green.svg)](https://lightgbm.readthedocs.io/)
+[![RAG Engine](https://img.shields.io/badge/FAISS-VectorStore-orange.svg)](https://github.com/facebookresearch/faiss)
+[![MLOps](https://img.shields.io/badge/MLflow-Experiment_Tracking-blueviolet.svg)](https://mlflow.org/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)](https://www.docker.com/)
+
+**Flight Delay & EU 261 Legal Advisor** adalah sistem kecerdasan buatan terpadu (*end-to-end AI system*) yang menggabungkan **Predictive Machine Learning** untuk menghitung risiko keterlambatan penerbangan dengan **Generative AI (RAG Engine)** untuk konsultasi hukum hak kompensasi penumpang pesawat berdasarkan Regulasi Uni Eropa (**EU 261/2004**).
+
+---
+
+## Daftar Isi
+- [Fitur Utama](#-fitur-utama)
+- [Arsitektur Sistem](#-arsitektur-sistem)
+- [Tech Stack](#-tech-stack)
+- [Struktur Repositori](#-struktur-repositori)
+- [Panduan Cara Menjalankan](#-panduan-cara-menjalankan)
+- [Evaluasi Model & MLOps](#-evaluasi-model--mlops)
+- [Fitur Keamanan (Security Guardrail)](#-fitur-keamanan-security-guardrail)
+- [Penulis](#-penulis)
+
+---
+
+## Fitur Utama
+
+1. **Prediksi Risiko Delay (LightGBM Classifier)**
+   - Menghitung probabilitas keterlambatan keberangkatan ($\ge 15$ menit) secara *real-time*.
+   - Pembobotan dinamis berdasarkan fitur jarak penerbangan (km), latensi keberangkatan, dan bobot historis kategorial maskapai.
+
+2. **AI Legal Chatbot Advisor (FAISS RAG Engine)**
+   - Menjawab pertanyaan seputar hak kompensasi tunai (**€250 – €600**) berdasarkan jarak rute (Pasal 7).
+   - Memberikan panduan fasilitas makanan/minuman (*Right to Care* - Pasal 9) untuk delay $\ge 2$ jam.
+   - Memberikan panduan fasilitas akomodasi hotel gratis jika terjadi penundaan menginap.
+   - Memberikan panduan hak *full refund* 100% tiket jika delay mencapai $\ge 5$ jam.
+
+3. **Input Security Guardrail Shield**
+   - Mendeteksi dan memblokir potensi ancaman *Prompt Injection* dan peretasan instruksi bot secara otomatis.
+
+4. **Dual Interface Mode**
+   - **Streamlit Web App (`app.py`)**: Antarmuka berbasis Python untuk *live demo* interaktif.
+   - **Standalone Web Prototype (`index.html`)**: Antarmuka *offline-ready* berbasis Tailwind CSS & JavaScript yang bisa langsung dijalankan di browser tanpa server backend.
+
+---
+
 ## Arsitektur Sistem
+[ Input Data Penerbangan / User Prompt ]
+│
+▼
+┌─────────────────────────────┐
+│    Security Guardrail Shield │ ──► [ Terdeteksi Injection? ] ──► ( Akses Ditolak )
+└─────────────────────────────┘
+│ Safe Query
+▼
+┌─────────────────────────────┐
+│ Machine Learning Predictor  │ ──► Model: LightGBM Classifier
+│  (Estimasi Probabilitas)    │     Features: Delay, Distance, Airline
+└─────────────────────────────┘
+│
+▼
+┌─────────────────────────────┐
+│  RAG Knowledge Retrieval    │ ──► Index: FAISS Vector Store
+│   (Legal Base EU 261/2004)  │     Embeddings: HuggingFace Legal Models
+└─────────────────────────────┘
+│
+▼
+[ Integrated Advisor Response / Streamlit & HTML Chatbot ]
+
+## Tech Stack
+
+- Programming Language: Python 3.10+
+- Machine Learning Engine: LightGBM, Scikit-Learn, Pandas, NumPy
+- Generative AI & RAG: FAISS (Vector Database), HuggingFace Sentence-Transformers, LangChain
+- User Interface: Streamlit Framework, HTML5, Tailwind CSS, JavaScript (ES6)
+- MLOps & Tracking: MLflow Experiment Tracking (sqlite:///mlflow.db)
+- Containerization: Docker & Docker Compose
+
+---
+
+## Struktur Repositori
 
 ```text
-[ Input Data ] 
-        │
-        ├──► (1) LightGBM Model ──► Prediksi Probabilitas Delay (%)
-        │
-        └──► (2) FAISS + RAG    ──► Retrieval Hak Penumpang (EU 261)
-                                         │
-                                         ▼
-                             [ Integrated Advisor Report ]
+flight-delay-advisor/
+├── data/
+│   ├── documents/
+│   │   └── eu_261_2004.md        # Dokumen hukum resmi Regulasi EU 261/2004
+│   └── raw/
+│       ├── airlines.csv           # Master data maskapai
+│       ├── airports.csv           # Master data bandara
+│       └── flights_2months.csv    # Dataset historis operasional penerbangan
+├── models/                        # Artefak model LightGBM & indeks FAISS
+├── notebooks/
+│   ├── 01_eda_ml.ipynb           # Notebook EDA, preprocessing, & pelatihan model ML
+│   └── 02_rag_pipeline.ipynb     # Notebook pembuatan FAISS Vector Store & RAG pipeline
+├── app.py                         # Aplikasi utama Streamlit Chatbot & Predictor
+├── index.html                     # Prototipe Web GUI interaktif (Offline-Ready)
+├── Dockerfile                     # Konfigurasi container Docker
+├── docker-compose.yml             # Konfigurasi Docker Compose service
+├── mlflow.db                      # Database log eksperimen MLflow
+├── requirements.txt               # Dependensi pustaka Python
+└── README.md                      # Dokumentasi resmi proyek
 
+Panduan Cara Menjalankan
+Opsi 1: Menjalankan Streamlit Web App (Lokal)
+  1. Clone Repositori:
+      git clone (https://github.com/Anggashah240/flight-delay-advisor.git)
+      cd flight-delay-advisor
 
+  2. Install Dependensi:
+      pip install -r requirements.txt
 
+  3. Jalankan Aplikasi Streamlit:
+      py -m streamlit run app.py
 
-# Flight Delay & EU 261 Advisor
+Opsi 2: Menjalankan Standalone Web Prototype (Instan & Offline)
+Buka folder proyek di File Explorer, lalu double-click pada berkas index.html. Antarmuka web akan langsung terbuka di browser tanpa membutuhkan instalasi Python atau koneksi internet.
 
-Sistem terintegrasi yang memprediksi risiko keterlambatan penerbangan menggunakan **Machine Learning (LightGBM)** dan memberikan advice hak kompensasi penumpang berbasis regulasi **EU 261/2004** menggunakan **RAG (LangChain + FAISS)**.
+Opsi 3: Menjalankan via Docker
+  docker-compose up --build
+  Akses aplikasi di browser pada alamat: http://localhost:8501
 
-## Struktur Proyek
-- `data/documents/`: Dokumen regulasi EU 261/2004 (`.md`).
-- `data/raw/`: Dataset penerbangan mentah.
-- `models/`: Model Machine Learning (`lgb_model.joblib`) dan indeks FAISS Vector Store.
-- `notebooks/`: 
-  - `01_eda_ml.ipynb`: Preprocessing data & pelatihan model LightGBM.
-  - `02_rag_pipeline.ipynb`: Pembuatan RAG pipeline & pengujian fungsi Advisor end-to-end.
+---
 
-## Cara Menjalankan
+## Tech Stack Evaluasi Model & MLOps
+  1. Dataset Source: US DOT Bureau of Transportation Statistics (BTS)
+  2. Model Class: LightGBM Classifier
+  3. Target Variable: Departure Delay >= 15 Menit (Binary Classification)
+  4. Performa Model: ROC-AUC: 0.7036
+  5. MLOps Tracking: Eksperimen pelatihan model, hyperparameter tuning, serta metrik evaluasi dicatat secara terstruktur menggunakan MLflow (mlflow.db).
 
-1. **Clone / Download repository ini**
-2. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
+## Fitur Keamanan (Security Guardrail)
+Aplikasi ini dilengkapi dengan Security Evaluator Layer pada sistem input user. Sistem akan menganalisis prompt sebelum diproses oleh LLM/RAG engine untuk memfilter frasa manipulasi seperti prompt injection dan upaya pembobolan peran (bypass/admin mode).
+
+Penulis
+Angga Hardiansyah
+AI Engineering Bootcamp - Digital Skola
+
+GitHub: https://github.com/Anggashah240
+
+Project Repository: https://github.com/Anggashah240/flight-delay-advisor
